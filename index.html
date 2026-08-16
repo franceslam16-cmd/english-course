@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>你是什么发型？</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #ffffff;
+      font-family: Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: #333333;
+    }
+
+    .audio-subtitle-player {
+      width: 100%;
+      max-width: 860px;
+      margin: 0 auto;
+      background: #ffffff;
+    }
+
+    .player-top {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      padding: 14px 12px 12px;
+      background: rgba(255, 255, 255, 0.96);
+      border-bottom: 1px solid #eeeeee;
+      backdrop-filter: blur(8px);
+    }
+
+    .lesson-audio {
+      width: 100%;
+      display: block;
+      margin-bottom: 14px;
+    }
+
+    .controls-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .control-btn {
+      border: none;
+      background: #f2f4f8;
+      color: #333333;
+      padding: 7px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .control-btn:hover {
+      background: #e4e8f2;
+    }
+
+    .control-btn.active {
+      background: #2f66f6;
+      color: #ffffff;
+    }
+
+    .speed-control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+      font-size: 14px;
+      color: #666666;
+    }
+
+    .speed-control select {
+      border: 1px solid #d8dce6;
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: #ffffff;
+      color: #333333;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .subtitle-list {
+      padding: 14px 12px 22px;
+    }
+
+    .subtitle-item {
+      padding: 18px 20px;
+      margin-bottom: 12px;
+      border-radius: 16px;
+      background: #ffffff;
+      border: 1px solid #eeeeee;
+      cursor: pointer;
+      transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.15s ease;
+    }
+
+    .subtitle-item:hover {
+      background: #f7f9ff;
+      border-color: #dbe4ff;
+      box-shadow: 0 4px 14px rgba(47, 102, 246, 0.10);
+    }
+
+    .subtitle-item.active {
+      background: #eef3ff;
+      border-color: #5a7dff;
+      box-shadow: 0 5px 18px rgba(47, 102, 246, 0.16);
+    }
+
+    .subtitle-en {
+      font-size: 24px;
+      line-height: 1.55;
+      color: #404040;
+      font-family: Georgia, "Times New Roman", serif;
+      word-break: normal;
+    }
+
+    .subtitle-item.active .subtitle-en {
+      color: #2f66f6;
+    }
+
+    .subtitle-cn {
+      margin-top: 9px;
+      font-size: 18px;
+      line-height: 1.65;
+      color: #8a8f9d;
+    }
+
+    .subtitle-item.active .subtitle-cn {
+      color: #606b86;
+    }
+
+    .hint {
+      padding: 8px 2px 0;
+      font-size: 13px;
+      color: #9aa0ad;
+    }
+
+    @media (max-width: 640px) {
+      .player-top {
+        padding: 12px 10px 10px;
+      }
+
+      .subtitle-list {
+        padding: 12px 10px 18px;
+      }
+
+      .subtitle-item {
+        padding: 15px 15px;
+        border-radius: 14px;
+        margin-bottom: 10px;
+      }
+
+      .subtitle-en {
+        font-size: 20px;
+        line-height: 1.55;
+      }
+
+      .subtitle-cn {
+        font-size: 16px;
+        line-height: 1.6;
+      }
+
+      .controls-row {
+        gap: 8px;
+      }
+
+      .control-btn {
+        padding: 6px 12px;
+        font-size: 13px;
+      }
+
+      .speed-control {
+        margin-left: auto;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="audio-subtitle-player">
+    <div class="player-top">
+      <audio
+        id="lessonAudio"
+        class="lesson-audio"
+        controls
+        preload="auto"
+        src=".\audio\test 01.mp3">
+      </audio>
+
+      <div class="controls-row">
+        <button class="control-btn" id="repeatBtn">单句循环：关</button>
+
+        <div class="speed-control">
+          <span>倍速</span>
+          <select id="speedSelect">
+            <option value="0.5">0.5x</option>
+            <option value="0.75">0.75x</option>
+            <option value="1" selected>1.0x</option>
+            <option value="1.25">1.25x</option>
+            <option value="1.5">1.5x</option>
+            <option value="1.75">1.75x</option>
+            <option value="2">2.0x</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="hint">
+        点击任意字幕，可跳转到对应音频位置。
+      </div>
+    </div>
+
+    <div class="subtitle-list" id="subtitleList"></div>
+  </div>
+
+  <script>
+    (function () {
+      var audio = document.getElementById("lessonAudio");
+      var subtitleList = document.getElementById("subtitleList");
+      var repeatBtn = document.getElementById("repeatBtn");
+      var speedSelect = document.getElementById("speedSelect");
+
+      var repeatCurrent = false;
+      var activeIndex = -1;
+      var currentRepeatIndex = -1;
+      var isSeekingForRepeat = false;
+
+      /*
+        为了避免句首被吞音：
+        点击某句时，从该句开始时间前 SEEK_BACK_SECONDS 秒开始播放。
+        如果觉得前面空白太长，可以把 0.08 改成 0.05。
+        如果还是吞音，可以改成 0.12 或 0.15。
+      */
+      var SEEK_BACK_SECONDS = 0.08;
+
+      /*
+        为了让单句循环更稳定：
+        在接近句尾时提前一点点跳回句首。
+        如果感觉跳得太早，可以把 0.04 改成 0.02。
+        如果还是偶尔跳到下一句，可以改成 0.08。
+      */
+      var LOOP_GUARD_SECONDS = 0.04;
+
+      var subtitles = [
+        {
+          start: 0.620,
+          end: 1.800,
+          en: "Hi Phil. How are you doing?",
+          zh: "嗨，Phil！最近怎么样？"
+        },
+        {
+          start: 2.320,
+          end: 4.330,
+          en: "I'm doing really well, Georgie.",
+          zh: "我挺好的，Georgie。"
+        },
+        {
+          start: 4.330,
+          end: 7.580,
+          en: "I must say, your hair is looking fantastic today!",
+          zh: "不得不说，你今天的头发真是太好看了。"
+        },
+        {
+          start: 7.580,
+          end: 12.160,
+          en: "Thank you very much, Phil. Today we are talking about hair.",
+          zh: "非常谢谢你，Phil。今天我们要聊聊头发。"
+        },
+        {
+          start: 12.160,
+          end: 19.320,
+          en: "Now, I can see your hair, but for our listeners, maybe you can start by describing your hair.",
+          zh: "我当然能看到你的头发，不过对我们的听众来说，你可以先来描述一下自己的头发吗？"
+        },
+        {
+          start: 19.320,
+          end: 25.840,
+          en: "OK. Well, my hair – it's short, but it's not very short.",
+          zh: "好啊。我的头发——挺短的，但也没特别短。"
+        },
+        {
+          start: 25.840,
+          end: 28.890,
+          en: "I think it's fairly straight.",
+          zh: "我觉得算是挺直的吧。"
+        },
+        {
+          start: 28.890,
+          end: 34.130,
+          en: "And then the colour – it's kind of a light brown colour.",
+          zh: "颜色嘛……是那种浅棕色的。"
+        },
+        {
+          start: 34.130,
+          end: 36.220,
+          en: "The bits that aren't grey, that is!",
+          zh: "当然，除了那些变成灰白的部分。"
+        },
+        {
+          start: 36.220,
+          end: 39.240,
+          en: "You said your hair used to be ginger.",
+          zh: "你刚才说你以前的头发是姜黄色的？"
+        },
+        {
+          start: 39.640,
+          end: 42.460,
+          en: "Yes, it used to be ginger – bright orange.",
+          zh: "对啊，以前是那种亮橘色的姜黄色。"
+        },
+        {
+          start: 42.460,
+          end: 47.250,
+          en: "Wow! Well, my hair is naturally dark brown.",
+          zh: "哇！我的头发是天生深棕色的。"
+        },
+        {
+          start: 47.250,
+          end: 51.540,
+          en: "It's quite short and it's wavy,",
+          zh: "挺短的，还有点微卷，"
+        },
+        {
+          start: 51.540,
+          end: 56.260,
+          en: "so sometimes it can be curly, but mostly it's wavy.",
+          zh: "有时候会变得很卷，但大多数时候只是自然的波浪卷。"
+        }
+      ];
+
+      function renderSubtitles() {
+        subtitleList.innerHTML = "";
+
+        subtitles.forEach(function (item, index) {
+          var div = document.createElement("div");
+          div.className = "subtitle-item";
+          div.setAttribute("data-index", index);
+
+          div.innerHTML =
+            '<div class="subtitle-en">' + escapeHtml(item.en) + '</div>' +
+            '<div class="subtitle-cn">' + escapeHtml(item.zh) + '</div>';
+
+          div.addEventListener("click", function () {
+            currentRepeatIndex = index;
+            jumpToSubtitle(index, true);
+          });
+
+          subtitleList.appendChild(div);
+        });
+      }
+
+      function escapeHtml(text) {
+        return String(text)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      function getCurrentSubtitleIndex(currentTime) {
+        for (var i = 0; i < subtitles.length; i++) {
+          if (currentTime >= subtitles[i].start && currentTime < subtitles[i].end) {
+            return i;
+          }
+        }
+
+        return -1;
+      }
+
+      function setActiveSubtitle(index, shouldScroll) {
+        if (index === activeIndex) {
+          return;
+        }
+
+        activeIndex = index;
+
+        var items = document.querySelectorAll(".subtitle-item");
+
+        items.forEach(function (item) {
+          item.classList.remove("active");
+        });
+
+        if (index >= 0 && items[index]) {
+          items[index].classList.add("active");
+
+          if (shouldScroll) {
+            items[index].scrollIntoView({
+              behavior: "smooth",
+              block: "center"
+            });
+          }
+        }
+      }
+
+      function getSafeStartTime(index) {
+        return Math.max(0, subtitles[index].start - SEEK_BACK_SECONDS);
+      }
+
+      function jumpToSubtitle(index, shouldPlay) {
+        if (index < 0 || index >= subtitles.length) {
+          return;
+        }
+
+        audio.currentTime = getSafeStartTime(index);
+        setActiveSubtitle(index, true);
+
+        if (shouldPlay) {
+          var playPromise = audio.play();
+
+          if (playPromise && typeof playPromise.catch === "function") {
+            playPromise.catch(function () {});
+          }
+        }
+      }
+
+      function checkSubtitleStatus() {
+        var currentTime = audio.currentTime;
+
+        if (repeatCurrent && currentRepeatIndex !== -1) {
+          var repeatSubtitle = subtitles[currentRepeatIndex];
+
+          if (currentTime >= repeatSubtitle.end - LOOP_GUARD_SECONDS) {
+            if (!isSeekingForRepeat) {
+              isSeekingForRepeat = true;
+              audio.currentTime = getSafeStartTime(currentRepeatIndex);
+
+              var playPromise = audio.play();
+
+              if (playPromise && typeof playPromise.catch === "function") {
+                playPromise.catch(function () {});
+              }
+
+              setTimeout(function () {
+                isSeekingForRepeat = false;
+              }, 120);
+            }
+
+            setActiveSubtitle(currentRepeatIndex, false);
+            return;
+          }
+
+          if (
+            currentTime >= repeatSubtitle.start - SEEK_BACK_SECONDS &&
+            currentTime < repeatSubtitle.end
+          ) {
+            setActiveSubtitle(currentRepeatIndex, true);
+            return;
+          }
+        }
+
+        var index = getCurrentSubtitleIndex(currentTime);
+
+        if (index !== -1) {
+          setActiveSubtitle(index, true);
+
+          if (!repeatCurrent) {
+            currentRepeatIndex = index;
+          }
+        }
+      }
+
+      audio.addEventListener("timeupdate", checkSubtitleStatus);
+      audio.addEventListener("seeking", checkSubtitleStatus);
+      audio.addEventListener("seeked", checkSubtitleStatus);
+      audio.addEventListener("play", checkSubtitleStatus);
+
+      /*
+        requestAnimationFrame 比 timeupdate 更频繁。
+        这里用它辅助判断句尾，解决单句循环偶尔失效的问题。
+      */
+      function loopChecker() {
+        if (!audio.paused && !audio.ended) {
+          checkSubtitleStatus();
+        }
+
+        requestAnimationFrame(loopChecker);
+      }
+
+      requestAnimationFrame(loopChecker);
+
+      repeatBtn.addEventListener("click", function () {
+        repeatCurrent = !repeatCurrent;
+
+        if (repeatCurrent) {
+          var currentIndex = getCurrentSubtitleIndex(audio.currentTime);
+
+          if (currentIndex !== -1) {
+            currentRepeatIndex = currentIndex;
+          } else if (activeIndex !== -1) {
+            currentRepeatIndex = activeIndex;
+          } else {
+            currentRepeatIndex = 0;
+          }
+
+          repeatBtn.textContent = "单句循环：开";
+          repeatBtn.classList.add("active");
+        } else {
+          repeatBtn.textContent = "单句循环：关";
+          repeatBtn.classList.remove("active");
+
+          var index = getCurrentSubtitleIndex(audio.currentTime);
+
+          if (index !== -1) {
+            currentRepeatIndex = index;
+          }
+        }
+      });
+
+      speedSelect.addEventListener("change", function () {
+        audio.playbackRate = Number(speedSelect.value);
+      });
+
+      renderSubtitles();
+      audio.playbackRate = Number(speedSelect.value);
+    })();
+  </script>
+</body>
+</html>
