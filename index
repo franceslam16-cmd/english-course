@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>布小蕾英语 - 登录</title>
+
+  <style>
+    :root {
+      --color-primary: #3b4a8c;
+      --color-title: #1a1a2e;
+      --color-brand-text: #152237;
+      --color-muted: #6b7280;
+      --color-logo: #fd6584;
+      --color-white: #ffffff;
+      --color-page-bg: #ffffff;
+      --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      --radius-card: 16px;
+      --radius-button: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      font-family:
+        "PingFang SC",
+        "Microsoft YaHei",
+        "Noto Sans SC",
+        Arial,
+        sans-serif;
+      background: var(--color-page-bg);
+      color: var(--color-title);
+    }
+
+    body {
+      min-height: 100vh;
+    }
+
+    .page {
+      position: relative;
+      width: 100%;
+      min-height: 100vh;
+      overflow: hidden;
+      background: #ffffff;
+    }
+
+    .page-inner {
+      position: relative;
+      width: 100%;
+      max-width: 1440px;
+      min-height: 730px;
+      margin: 0 auto;
+    }
+
+    /* 顶部品牌 */
+    .brand {
+      position: absolute;
+      top: 21px;
+      left: 22px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      z-index: 2;
+    }
+
+    .brand-logo {
+      width: 75px;
+      height: auto;
+      display: block;
+    }
+
+    .brand-name {
+      margin: 0;
+      font-size: 37px;
+      line-height: 1.1;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--color-brand-text);
+      white-space: nowrap;
+    }
+
+    /* 主区域 */
+    .main {
+      min-height: 730px;
+      display: grid;
+      grid-template-columns: 1fr 516px;
+      column-gap: 30px;
+      align-items: center;
+      padding: 100px 21px 42px 97px;
+    }
+
+    .hero {
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-start;
+      min-width: 0;
+    }
+
+    .hero-illustration {
+      display: block;
+      width: min(776px, 100%);
+      height: auto;
+      object-fit: contain;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    /* 登录卡片 */
+    .login-card {
+      width: 516px;
+      min-height: 501px;
+      margin-top: -16px;
+      padding: 52px 47px 58px;
+      border-radius: var(--radius-card);
+      background: var(--color-white);
+      box-shadow: var(--card-shadow);
+    }
+
+    .card-logo {
+      width: 59px;
+      height: auto;
+      display: block;
+      margin: 0 auto 22px;
+    }
+
+    .card-title {
+      margin: 0;
+      text-align: center;
+      font-size: 40px;
+      line-height: 1.15;
+      font-weight: 700;
+      color: var(--color-title);
+      letter-spacing: 0.04em;
+    }
+
+    .card-subtitle {
+      margin: 12px 0 46px;
+      text-align: center;
+      font-size: 20px;
+      line-height: 1.4;
+      color: var(--color-muted);
+      font-weight: 400;
+    }
+
+    .login-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 19px;
+    }
+
+    .login-button {
+      width: 100%;
+      height: 74px;
+      border: 1.5px solid var(--color-primary);
+      border-radius: var(--radius-button);
+      background: #ffffff;
+      color: var(--color-primary);
+      font-size: 30px;
+      line-height: 1;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition:
+        background-color 0.18s ease,
+        color 0.18s ease,
+        box-shadow 0.18s ease,
+        transform 0.18s ease;
+    }
+
+    .login-button:hover {
+      background: var(--color-primary);
+      color: #ffffff;
+      box-shadow: 0 8px 18px rgba(59, 74, 140, 0.18);
+      transform: translateY(-1px);
+    }
+
+    .login-button:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .login-button:focus-visible {
+      outline: 3px solid rgba(59, 74, 140, 0.25);
+      outline-offset: 3px;
+    }
+
+    /* 中等屏幕适配 */
+    @media (max-width: 1200px) {
+      .page-inner {
+        min-height: 700px;
+      }
+
+      .main {
+        grid-template-columns: 1fr 460px;
+        padding-left: 56px;
+        padding-right: 32px;
+        column-gap: 24px;
+      }
+
+      .login-card {
+        width: 460px;
+        padding-left: 38px;
+        padding-right: 38px;
+      }
+
+      .card-title {
+        font-size: 36px;
+      }
+
+      .card-subtitle {
+        font-size: 18px;
+      }
+
+      .login-button {
+        font-size: 28px;
+      }
+    }
+
+    /* 平板和小屏桌面 */
+    @media (max-width: 960px) {
+      .page {
+        overflow: visible;
+      }
+
+      .page-inner {
+        min-height: 100vh;
+      }
+
+      .brand {
+        position: static;
+        padding: 22px 24px 0;
+      }
+
+      .brand-logo {
+        width: 56px;
+      }
+
+      .brand-name {
+        font-size: 30px;
+      }
+
+      .main {
+        min-height: auto;
+        grid-template-columns: 1fr;
+        row-gap: 32px;
+        padding: 36px 24px 56px;
+      }
+
+      .hero {
+        justify-content: center;
+      }
+
+      .hero-illustration {
+        width: min(620px, 100%);
+      }
+
+      .login-card {
+        width: min(516px, 100%);
+        min-height: auto;
+        margin: 0 auto;
+        padding: 42px 32px 44px;
+      }
+    }
+
+    /* 手机端 */
+    @media (max-width: 600px) {
+      .brand {
+        gap: 12px;
+        padding: 18px 18px 0;
+      }
+
+      .brand-logo {
+        width: 44px;
+      }
+
+      .brand-name {
+        font-size: 24px;
+      }
+
+      .main {
+        padding: 28px 16px 40px;
+        row-gap: 24px;
+      }
+
+      .hero-illustration {
+        width: 100%;
+        max-width: 430px;
+      }
+
+      .login-card {
+        border-radius: 14px;
+        padding: 34px 22px 32px;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.07);
+      }
+
+      .card-logo {
+        width: 52px;
+        margin-bottom: 18px;
+      }
+
+      .card-title {
+        font-size: 32px;
+      }
+
+      .card-subtitle {
+        margin-top: 10px;
+        margin-bottom: 32px;
+        font-size: 16px;
+      }
+
+      .login-actions {
+        gap: 14px;
+      }
+
+      .login-button {
+        height: 58px;
+        font-size: 22px;
+      }
+    }
+
+    /* 很矮的屏幕，避免内容被裁掉 */
+    @media (max-height: 720px) and (min-width: 961px) {
+      .page-inner {
+        min-height: 100vh;
+      }
+
+      .main {
+        min-height: 100vh;
+        padding-top: 92px;
+        padding-bottom: 24px;
+      }
+
+      .login-card {
+        margin-top: 0;
+        min-height: auto;
+        padding-top: 40px;
+        padding-bottom: 42px;
+      }
+
+      .card-subtitle {
+        margin-bottom: 34px;
+      }
+
+      .login-button {
+        height: 68px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="page-inner">
+      <header class="brand" aria-label="网站品牌">
+        <img
+          src="./assets/logo-flower.svg"
+          alt="布小蕾英语 Logo"
+          class="brand-logo"
+        />
+        <h1 class="brand-name">布小蕾英语</h1>
+      </header>
+
+      <main class="main">
+        <section class="hero" aria-label="登录页插画">
+          <img
+            src="./assets/login-illustration.png"
+            alt="学生在线学习英语插画"
+            class="hero-illustration"
+          />
+        </section>
+
+        <section class="login-card" aria-label="登录方式选择">
+          <img
+            src="./assets/logo-flower.svg"
+            alt=""
+            class="card-logo"
+            aria-hidden="true"
+          />
+
+          <h2 class="card-title">登录</h2>
+          <p class="card-subtitle">进入布小蕾英语学习中心</p>
+
+          <div class="login-actions">
+            <button class="login-button" type="button" id="phoneLoginBtn">
+              手机号登录
+            </button>
+
+            <button class="login-button" type="button" id="emailLoginBtn">
+              邮箱登录
+            </button>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const phoneLoginBtn = document.getElementById("phoneLoginBtn");
+    const emailLoginBtn = document.getElementById("emailLoginBtn");
+
+    phoneLoginBtn.addEventListener("click", function () {
+      console.log("点击了手机号登录");
+
+      /*
+        后续你可以改成跳转：
+        window.location.href = "/login/phone.html";
+
+        或者显示手机号登录表单。
+      */
+    });
+
+    emailLoginBtn.addEventListener("click", function () {
+      console.log("点击了邮箱登录");
+
+      /*
+        后续你可以改成跳转：
+        window.location.href = "/login/email.html";
+
+        或者显示邮箱登录表单。
+      */
+    });
+  </script>
+</body>
+</html>
